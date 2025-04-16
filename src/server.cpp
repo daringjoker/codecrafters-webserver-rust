@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <iostream>
 #include <cstdlib>
 #include <string>
@@ -7,6 +8,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+
+#include "response.h"
 
 int main(int argc, char **argv) {
   // Flush after every std::cout / std::cerr
@@ -53,9 +56,15 @@ int main(int argc, char **argv) {
 
   std::cout << "Waiting for a client to connect...\n";
 
-  accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
+  int client_fd=accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
   std::cout << "Client connected\n";
+  unsigned long long reqBufSize= 1024*1024;
+  char reqBuffer[reqBufSize];
+  recv(client_fd, reqBuffer,reqBufSize,0);
 
+  Response res;
+  res.setStatusCode(200).setStatusMessage("OK").respond(client_fd);
+  
   close(server_fd);
 
   return 0;
