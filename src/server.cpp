@@ -10,6 +10,7 @@
 #include <netdb.h>
 
 #include "response.h"
+#include "request.h"
 
 int main(int argc, char **argv) {
   // Flush after every std::cout / std::cerr
@@ -58,12 +59,21 @@ int main(int argc, char **argv) {
 
   int client_fd=accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
   std::cout << "Client connected\n";
-  unsigned long long reqBufSize= 1024*1024;
-  char reqBuffer[reqBufSize];
-  recv(client_fd, reqBuffer,reqBufSize,0);
 
-  Response res;
-  res.setStatusCode(200).setStatusMessage("OK").respond(client_fd);
+  Request req(client_fd);
+
+  auto url=req.get_url();
+  if(url =="/")
+  {
+    Response res;
+    res.setStatusCode(200).setStatusMessage("OK").respond(client_fd);
+  }else{
+
+    Response res;
+    res.setStatusCode(404).setStatusMessage("Not Found").respond(client_fd);
+  }
+
+
   
   close(server_fd);
 
